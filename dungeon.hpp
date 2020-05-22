@@ -326,16 +326,12 @@ int Dungeon::make_aisle_horizontally(Rect *r1, Rect *r2){
 
 void Dungeon::reset_map(int w, int h){
     // resize
-    if (_width != w){
-        _map.resize(w);
-        _width = w;
+    _map.resize(w);
+    for (auto &col: _map){
+        col.resize(h);
     }
-    if (_height != h){
-        for (auto &col: _map){
-            col.resize(h);
-        }
-        _height = h;
-    }
+    _width = w;
+    _height = h;
     // reset map
     for (int y = 0; y < _height; y++){
         for (int x = 0; x < _width; x++){
