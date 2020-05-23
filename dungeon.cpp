@@ -58,7 +58,7 @@ void rich_output(Dungeon dun){
 //-----------------
 int main(){
     Dungeon dun;
-    int width = 48, height = 32, n_room = 20;
+    int width = 48, height = 32, n_room = 20, n_branch = 0;
     bool errchk;
     char key_command = 's';
     while (key_command == 's') {
@@ -66,8 +66,8 @@ int main(){
         errchk = true;
         while (errchk){
             errchk = false;
-            cout << "パラメータ入力: 幅 高さ 最大部屋数 > ";
-            cin >> width >> height >> n_room;
+            cout << "パラメータ入力: 幅 高さ 最大部屋数 分岐点数 > ";
+            cin >> width >> height >> n_room >> n_branch;
             if (width < 7){
                 cerr << "エラー: 幅が小さすぎます．" << endl;
                 errchk = true;
@@ -85,8 +85,8 @@ int main(){
         key_command = 'r';
         while (key_command == 'r') {
             cout << "\x1b[2J";
-            cout << width << "x" << height << ", 最大部屋数=" << n_room << endl;
-            dun.make_dungeon(width, height, n_room);
+            cout << width << "x" << height << ", 最大部屋数=" << n_room << ", 分岐点数=" << n_branch << endl;
+            dun.make_dungeon(width, height, n_room, n_branch);
             rich_output(dun);
             cout << "[r] もう一度 / [s] パラメータ変更 / [その他] やめる > ";
             cin >> key_command;

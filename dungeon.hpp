@@ -38,15 +38,15 @@ class Dungeon {
     // Method
     public:
         // all processes
-        void make_dungeon(int w, int h, int n_room);
+        void make_dungeon(int w, int h, int n_room, int n_branch);
         // rect-splitting
-        void split_random(int n_room);
+        void split_random(int n_room, int n_branch);
         int split_rect_vertically();
         int split_rect_horizontally();
         void shuffle_rectlist();
         void sort_rectlist();
         // room-making
-        void make_room();
+        void make_room(int n_branch);
         // aisle-routing
         void make_aisle();
         int make_aisle_vertically(Rect *r1, Rect *r2);
@@ -122,15 +122,15 @@ Dungeon::MapType &Dungeon::map_at(int x, int y) { return _map[x][y]; }
 //--------------
 // Method
 //--------------
-void Dungeon::make_dungeon(int w, int h, int n_room){
+void Dungeon::make_dungeon(int w, int h, int n_room, int n_branch){
     reset_map(w, h);
-    split_random(n_room);
-    make_room();
+    split_random(n_room, n_branch);
+    make_room(n_branch);
     make_aisle();
 }
 
-void Dungeon::split_random(int n_room){
-    for (int i = 0; i < n_room - 1; i++){
+void Dungeon::split_random(int n_room, int n_branch){
+    for (int i = 0; i < n_room + n_branch - 1; i++){
         sort_rectlist();
         switch (int_rand(0, 1)){
         case 0: // r->(r1/r2) > r->(r1|r2)
@@ -211,8 +211,10 @@ void Dungeon::sort_rectlist(){
     });
 }
 
-void Dungeon::make_room(){
-    // Make a room for each rectangles
+void Dungeon::make_room(int n_branch){
+    // shuffle rectangle list
+    shuffle_rectlist();
+    // Make a room or a branch for each rectangles
     for (int i = 0; i < _rect.size(); i++){
         Rect *r = &_rect[i];
         /*
@@ -221,16 +223,24 @@ void Dungeon::make_room(){
         r->room_x1 = r->x1 - 1;
         r->room_y1 = r->y1 - 1;
         */
-        r->room_x0 = int_rand(r->x0+1, (r->x0 + r->x1)/2-MIN_ROOM_SIZE/2);
-        r->room_y0 = int_rand(r->y0+1, (r->y0 + r->y1)/2-MIN_ROOM_SIZE/2);
-        r->room_x1 = int_rand((r->x0 + r->x1)/2+MIN_ROOM_SIZE/2, r->x1-1);
-        r->room_y1 = int_rand((r->y0 + r->y1)/2+MIN_ROOM_SIZE/2, r->y1-1);
-    }
-    // Write rooms
-    for (int i = 0; i < _rect.size(); i++){
-        for (int y = _rect[i].room_y0; y <= _rect[i].room_y1; y++){
-            for (int x = _rect[i].room_x0; x <= _rect[i].room_x1; x++){
-                _map[x][y] = ROOM;    
+        // make branch
+        if (i < n_branch){
+            r->room_x0 = int_rand(r->x0+1, r->x1-1);
+            r->room_y0 = int_rand(r->y0+1, r->y1-1);
+            r->room_x1 = r->room_x0;
+            r->room_y1 = r->room_y0;
+            _map[r->room_x0][r->room_y0] = AISLE;
+        }
+        // make room
+        else{
+            r->room_x0 = int_rand(r->x0+1, (r->x0 + r->x1)/2-MIN_ROOM_SIZE/2);
+            r->room_y0 = int_rand(r->y0+1, (r->y0 + r->y1)/2-MIN_ROOM_SIZE/2);
+            r->room_x1 = int_rand((r->x0 + r->x1)/2+MIN_ROOM_SIZE/2, r->x1-1);
+            r->room_y1 = int_rand((r->y0 + r->y1)/2+MIN_ROOM_SIZE/2, r->y1-1);
+            for (int y = r->room_y0; y <= r->room_y1; y++){
+                for (int x = r->room_x0; x <= r->room_x1; x++){
+                    _map[x][y] = ROOM;    
+                }
             }
         }
     }
