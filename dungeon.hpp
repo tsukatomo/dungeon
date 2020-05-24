@@ -207,7 +207,7 @@ void Dungeon::shuffle_rectlist(){
 
 void Dungeon::sort_rectlist(){
     std::sort(_rect.begin(), _rect.end(), [](Rect r1, Rect r2){
-        return (r1.x1-r1.x0+1)*(r1.y1-r1.y0+1) < (r2.x1-r2.x0+1)*(r2.y1-r2.y0+1);
+        return std::max(r1.x1-r1.x0+1, r1.y1-r1.y0+1) < std::max(r2.x1-r2.x0+1, r2.y1-r2.y0+1);
     });
 }
 
